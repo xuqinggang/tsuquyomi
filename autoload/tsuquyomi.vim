@@ -16,7 +16,7 @@ let s:root_dir = s:Filepath.dirname(s:Filepath.dirname(s:Filepath.remove_last_se
 "
 " ### Utilites {{{
 function! s:error(msg)
-  echom (a:msg)
+  echoerr (a:msg)
   throw 'tsuquyomi: '.a:msg
 endfunction
 
@@ -192,6 +192,24 @@ function! s:reloadFromList(filelist)
   return file_count
 endfunction
 
+function! s:asyncReloadFromList(filelist)
+  let file_count = 0
+  for file in a:filelist
+    if tsuquyomi#bufManager#isOpened(file)
+      call tsuquyomi#tsClient#tsAsyncReload(file, file)
+    endif
+    call tsuquyomi#bufManager#setDirty(file, 0)
+    let file_count = file_count + 1
+  endfor
+  return file_count
+endfunction
+
+function! tsuquyomi#asyncReload(...)
+  let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%:p')]
+  echom 'tsuquyomi#asyncReload' . join(filelist, ',')
+  return s:asyncReloadFromList(filelist)
+endfunction
+
 function! tsuquyomi#reload(...)
   let filelist = a:0 ? map(range(1, a:{0}), 'expand(a:{v:val})') : [expand('%:p')]
   return s:reloadFromList(filelist)
@@ -333,6 +351,15 @@ function! tsuquyomi#signatureHelp()
 endfunction
 
 function! tsuquyomi#complete(findstart, base)
+  " echom "test"
+  " echom a:findstart
+  " echom a:base
+  " echom expand('%:p')
+  " echom join(s:checkOpenAndMessage([expand('%:p')])[1])
+  " echom getline('.')
+  " echom line('.')
+  " echom col('.')
+  " echom '00'
   if len(s:checkOpenAndMessage([expand('%:p')])[1])
     return
   endif
@@ -346,6 +373,7 @@ function! tsuquyomi#complete(findstart, base)
   while l:start > 0 && l:line_str[l:start-2] =~ "\\k"
     let l:start -= 1
   endwhile
+
 
   if(a:findstart)
     call tsuquyomi#perfLogger#record('before_flush')
@@ -368,7 +396,10 @@ function! tsuquyomi#complete(findstart, base)
       let l:res_list = l:alpha_sorted_res_list
     endif
 
+    " echom "l:res_list".join(l:res_list)
+
     let enable_menu = stridx(&completeopt, 'menu') != -1
+    " echom "enable_menu: ".enable_menu
     let length = strlen(a:base)
     if enable_menu
       call tsuquyomi#perfLogger#record('start_menu')
@@ -377,6 +408,8 @@ function! tsuquyomi#complete(findstart, base)
       else
         let [has_info, siginfo] = [0, '']
       endif
+
+      " echom "has_info: ".has_info. "; ".siginfo
 
       let size = g:tsuquyomi_completion_chunk_size
       let j = 0

@@ -255,6 +255,7 @@ endfunction
 " PARAM: {int} response_length The number of JSONs contained by this response.
 " RETURNS: {list<dict>} A list of response.
 function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length)
+  echom "line" . a:line
   "call s:debugLog('called! '.a:line)
   call tsuquyomi#tsClient#startTss()
   if !s:is_vim8 || g:tsuquyomi_use_vimproc
@@ -267,6 +268,7 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
   let response_list = []
 
   while len(response_list) < a:response_length
+    echom "tsuquyomi#tsClient#sendRequest" . len(response_list) . 'is_vim8' . s:is_vim8 . g:tsuquyomi_use_vimproc
     if !s:is_vim8 || g:tsuquyomi_use_vimproc
       let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
       call s:debugLog('out: '.out.', type:'.type)
@@ -288,6 +290,7 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
       let type = 'matched'
     endif
     if type == 'matched'
+      " echom "hhhhhhh" . out
       let l:tmp1 = substitute(out, 'Content-Length: \d\+', '', 'g')
       let l:tmp2 = substitute(l:tmp1, '\r', '', 'g')
       let l:res_list = split(l:tmp2, '\n\+')
@@ -688,6 +691,7 @@ function! tsuquyomi#tsClient#tsReload(file, tmpfile)
   let l:arg = {'file': a:file, 'tmpfile': a:tmpfile}
   " With ts > 2.6 and ts <=1.9, tsserver emit 2 responses by reload request.
   " ignore 2nd response of reload command. See also #62
+  echom "tsuquyomi#config#isHigher(260)" . tsuquyomi#config#isHigher(260)
   if tsuquyomi#config#isHigher(260) || !tsuquyomi#config#isHigher(190)
     let l:res_count = 1
   else
@@ -704,6 +708,11 @@ function! tsuquyomi#tsClient#tsReload(file, tmpfile)
   else
     return 0
   endif
+endfunction
+
+function! tsuquyomi#tsClient#tsAsyncReload(file, tmpfile)
+  let l:arg = {'file': a:file, 'tmpfile': a:tmpfile}
+  call tsuquyomi#tsClient#sendCommandAsyncEvents('reload', l:arg)
 endfunction
 
 " Fetch locatoins of symbols to be replaced from TSServer.

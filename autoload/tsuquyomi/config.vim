@@ -261,7 +261,7 @@ function! tsuquyomi#config#applyBufLocalDefaultMap()
   endif
 endfunction
 
-let s:autocmd_patterns = []
+let s:autocmd_patterns = ['*.js', '*.jsx', '*.ts', '*.tsx']
 function! tsuquyomi#config#applyBufLocalAutocmd(pattern)
   if index(s:autocmd_patterns, a:pattern) == -1
     call add(s:autocmd_patterns, a:pattern)
@@ -278,6 +278,7 @@ function! tsuquyomi#config#applyBufLocalAutocmd(pattern)
     autocmd!
     autocmd BufWinEnter * silent! call tsuquyomi#setPreviewOption()
     execute 'autocmd TextChanged,TextChangedI '.all_patterns.' silent! call tsuquyomi#letDirty()'
+    execute 'autocmd BufWritePost '.all_patterns.' silent! call tsuquyomi#asyncReload()'
   augroup END
 endfunction
 
