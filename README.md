@@ -1,5 +1,15 @@
 # Fork [Quramy/tsuquyomi](https://github.com/Quramy/tsuquyomi)改善并修复了些bug
 
+### bug
++ 举个例子：当通过ctrl+]跳转时，跳转到定义文件后，临时修改了定义文件相关内容，导致跳转的定义位置发生改变。此时ctrl+t跳转回去，再ctrl+]跳转过来发现还是跳转到最初的定义位置（但此时定义位置已改变了、也就是最终跳转定义位置不对）。
+原因: 修改定义文件时，ts并没有重新加载改文件，ts所作用的文件还是修改之前的
+修复：文件保存时tsReload该文件，通知ts文件变化
+具体问题如下图所示:
+![capture](http://sf1-ttcdn-tos.pstatp.com/obj/ttfe/xuqinggang/vim.gif)
++ tooltip功能，切换到源文件后，立马触发了balloonexpr，由于插件还未加载完会抛错
+修复：try catch包裹
+
+
 # Tsuquyomi [![Build Status](https://travis-ci.org/Quramy/tsuquyomi.svg?branch=master)](https://travis-ci.org/Quramy/tsuquyomi) [![Greenkeeper badge](https://badges.greenkeeper.io/Quramy/tsuquyomi.svg)](https://greenkeeper.io/)
 
 
