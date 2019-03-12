@@ -60,6 +60,7 @@ endfunction
 "
 " If not exsiting process of TSServer, create it.
 function! s:startTssVimproc()
+  echom "s:startTssVimproc"
   if s:P.state(s:tsq) == 'existing'
     return 'existing'
   endif
@@ -78,6 +79,7 @@ function! s:startTssVimproc()
 endfunction
 
 function! s:startTssVim8()
+  echom "s:startTssVim8"
   if type(s:tsq['job']) == 8 && job_info(s:tsq['job']).status == 'run'
     return 'existing'
   endif
@@ -115,6 +117,7 @@ endfunction
 
 
 function! tsuquyomi#tsClient#startTss()
+  echom "tsuquyomi#tsClient#startTss"
   if !s:is_vim8 || g:tsuquyomi_use_vimproc
     return s:startTssVimproc()
   else
@@ -255,7 +258,7 @@ endfunction
 " PARAM: {int} response_length The number of JSONs contained by this response.
 " RETURNS: {list<dict>} A list of response.
 function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_length)
-  echom "line" . a:line
+  " echom "line" . a:line
   "call s:debugLog('called! '.a:line)
   call tsuquyomi#tsClient#startTss()
   if !s:is_vim8 || g:tsuquyomi_use_vimproc
@@ -268,7 +271,7 @@ function! tsuquyomi#tsClient#sendRequest(line, delay, retry_count, response_leng
   let response_list = []
 
   while len(response_list) < a:response_length
-    echom "tsuquyomi#tsClient#sendRequest" . len(response_list) . 'is_vim8' . s:is_vim8 . g:tsuquyomi_use_vimproc
+    " echom "tsuquyomi#tsClient#sendRequest" . len(response_list) . 'is_vim8' . s:is_vim8 . g:tsuquyomi_use_vimproc
     if !s:is_vim8 || g:tsuquyomi_use_vimproc
       let [out, err, type] = s:P.read_wait(s:tsq, a:delay, ['Content-Length: \d\+'])
       call s:debugLog('out: '.out.', type:'.type)
@@ -691,7 +694,7 @@ function! tsuquyomi#tsClient#tsReload(file, tmpfile)
   let l:arg = {'file': a:file, 'tmpfile': a:tmpfile}
   " With ts > 2.6 and ts <=1.9, tsserver emit 2 responses by reload request.
   " ignore 2nd response of reload command. See also #62
-  echom "tsuquyomi#config#isHigher(260)" . tsuquyomi#config#isHigher(260)
+  " echom "tsuquyomi#config#isHigher(260)" . tsuquyomi#config#isHigher(260)
   if tsuquyomi#config#isHigher(260) || !tsuquyomi#config#isHigher(190)
     let l:res_count = 1
   else

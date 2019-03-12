@@ -286,7 +286,7 @@ function! tsuquyomi#config#applyBufLocalFunctions()
   setlocal omnifunc=tsuquyomi#complete
 
   if exists('+bexpr')
-    setlocal bexpr=tsuquyomi#balloonexpr()
+    " setlocal bexpr=tsuquyomi#balloonexpr()
   endif
 endfunction
 
